@@ -76,6 +76,6 @@ export const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children
   return (
     <Web3Context.Provider value={{ account, chainId, connectWallet, provider, signer }}>
       {children}
-    </Web3Provider>
+    </Web3Context.Provider>
   );
 };
