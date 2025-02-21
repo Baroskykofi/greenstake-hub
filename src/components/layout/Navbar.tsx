@@ -21,26 +21,26 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <Link to="/" className="text-xl font-bold text-primary hover:opacity-80 transition-opacity">
+            <Link to="/" className="text-xl font-bold text-green-600 hover:opacity-80 transition-opacity">
               GreenStake
             </Link>
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
             <Link
-              to="/"
+              to="/projects"
               className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
-                isActive('/') ? 'text-primary bg-primary/10' : 'text-gray-600 hover:text-primary hover:bg-gray-50'
+                isActive('/projects') ? 'text-green-600 bg-green-50' : 'text-gray-600 hover:text-green-600 hover:bg-gray-50'
               }`}
             >
               <Home size={20} />
-              <span>Home</span>
+              <span>Projects</span>
             </Link>
 
             <Link
               to="/list-project"
               className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
-                isActive('/list-project') ? 'text-primary bg-primary/10' : 'text-gray-600 hover:text-primary hover:bg-gray-50'
+                isActive('/list-project') ? 'text-green-600 bg-green-50' : 'text-gray-600 hover:text-green-600 hover:bg-gray-50'
               }`}
             >
               <PlusCircle size={20} />
@@ -50,7 +50,7 @@ const Navbar = () => {
             <Link
               to="/dao"
               className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
-                isActive('/dao') ? 'text-primary bg-primary/10' : 'text-gray-600 hover:text-primary hover:bg-gray-50'
+                isActive('/dao') ? 'text-green-600 bg-green-50' : 'text-gray-600 hover:text-green-600 hover:bg-gray-50'
               }`}
             >
               <Users size={20} />
@@ -60,14 +60,14 @@ const Navbar = () => {
 
           <div className="flex items-center space-x-4">
             {account ? (
-              <div className="flex items-center px-4 py-2 rounded-lg bg-primary/10 text-primary">
+              <div className="flex items-center px-4 py-2 rounded-lg bg-green-50 text-green-600">
                 <Wallet size={20} className="mr-2" />
                 <span className="font-medium">{truncateAddress(account)}</span>
               </div>
             ) : (
               <Button
                 onClick={connectWallet}
-                className="flex items-center space-x-2 bg-primary hover:bg-primary/90 text-white"
+                className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white"
               >
                 <Wallet size={20} />
                 <span>Connect Wallet</span>

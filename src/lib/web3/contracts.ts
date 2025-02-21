@@ -7,24 +7,28 @@ export const CONTRACT_ADDRESSES = {
   DONATE: '0x4C597Bc2CC4ca87efC738EFDeFD487E27833df4a'
 };
 
-// ABI definitions would go here - for now using minimal interfaces
 export const MINIMAL_ABI = {
-  ProjectListing: [
-    "function listProject(string name, string description) payable",
-    "function getProject(uint256 projectId) view returns (tuple(string name, string description, address owner, uint256 endTime, uint256 totalDonations, bool isListed))",
-    "function getAllProjects() view returns (tuple(string name, string description, address owner, uint256 endTime, uint256 totalDonations, bool isListed)[])",
-    "function subscriptionFee() view returns (uint256)"
-  ],
   DAO: [
+    // ... your provided DAO ABI here
     "function joinDAO() payable",
-    "function voteOnProject(uint256 projectId, bool support)",
-    "function isMember(address account) view returns (bool)",
-    "function getMinimumStake() view returns (uint256)",
-    "function getProjectVotes(uint256 projectId) view returns (uint256 yes, uint256 no)"
+    "function minStakeAmount() view returns (uint256)",
+    "function members(address) view returns (tuple(uint256 stakedAmount, bool isMember))",
+    "function projectRequests(uint256) view returns (tuple(uint256 projectId, address projectOwner, string name, string description, uint256 yesVotes, uint256 noVotes, bool isApproved, bool isProcessed))",
+    "function voteOnProject(uint256 projectId, bool vote)",
+    "function hasVoted(uint256, address) view returns (bool)"
   ],
   Donate: [
+    // ... your provided Donate ABI here
     "function donateToProject(uint256 projectId) payable",
-    "function getProjectDonations(uint256 projectId) view returns (uint256)"
+    "function totalDonationsPerProject(uint256) view returns (uint256)",
+    "function donorDonations(address, uint256) view returns (tuple(address donor, uint256 amount, uint256 projectId, uint256 timestamp))"
+  ],
+  ProjectListing: [
+    // ... your provided ProjectListing ABI here
+    "function listProject(string name, string description) payable",
+    "function projects(uint256) view returns (tuple(uint256 id, string name, string description, address owner, uint256 subscriptionEndTime, bool isListed, uint256 totalDonations))",
+    "function subscriptionFee() view returns (uint256)",
+    "function projectCounter() view returns (uint256)"
   ]
 };
 

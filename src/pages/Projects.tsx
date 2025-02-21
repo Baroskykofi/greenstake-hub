@@ -14,7 +14,7 @@ interface Project {
   isListed: boolean;
 }
 
-const Index = () => {
+const Projects = () => {
   const { provider, account } = useWeb3();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,8 +30,23 @@ const Index = () => {
           provider
         );
 
-        const projectsData = await contract.getAllProjects();
-        setProjects(projectsData);
+        const projectsData = await contract.projects;
+        const projectCounter = await contract.projectCounter();
+
+        const projectsArray = [];
+        for (let i = 0; i < projectCounter; i++) {
+          const project = await contract.projects(i);
+          projectsArray.push({
+            id: project.id.toNumber(),
+            name: project.name,
+            description: project.description,
+            owner: project.owner,
+            endTime: project.subscriptionEndTime.toNumber(),
+            totalDonations: project.totalDonations.toString(),
+            isListed: project.isListed,
+          });
+        }
+        setProjects(projectsArray);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching projects:', error);
@@ -79,7 +94,7 @@ const Index = () => {
     <div className="min-h-screen pt-24 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Active Projects</h1>
+          <h1 className="text-3xl font-bold text-green-600">Explore Projects</h1>
         </div>
 
         {projects.length === 0 ? (
@@ -94,14 +109,14 @@ const Index = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {projects.map((project, index) => (
+            {projects.map((project) => (
               <ProjectCard
-                key={index}
-                id={index}
+                key={project.id}
+                id={project.id}
                 name={project.name}
                 description={project.description}
-                endTime={typeof project.endTime === 'number' ? project.endTime : Number(project.endTime)}
-                totalDonations={project.totalDonations.toString()}
+                endTime={project.endTime}
+                totalDonations={project.totalDonations}
                 isListed={project.isListed}
               />
             ))}
@@ -112,4 +127,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default Projects;
