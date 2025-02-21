@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { WagmiProvider } from 'wagmi';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
-import { config, chains } from '@/lib/web3/wagmi';
+import { config } from '@/lib/web3/wagmi';
 import Navbar from "./components/layout/Navbar";
 import Landing from "./pages/Landing";
 import Projects from "./pages/Projects";
@@ -20,7 +20,7 @@ const queryClient = new QueryClient();
 const App = () => (
   <WagmiProvider config={config}>
     <QueryClientProvider client={queryClient}>
-      <RainbowKitProvider chains={chains}>
+      <RainbowKitProvider>
         <TooltipProvider>
           <Toaster />
           <Sonner />

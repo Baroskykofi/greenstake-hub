@@ -5,7 +5,7 @@ import { CONTRACT_ADDRESSES, MINIMAL_ABI } from '@/lib/web3/contracts';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { formatEther, parseEther } from 'viem';
+import { formatEther } from 'viem';
 import { toast } from 'sonner';
 import { sepolia } from 'wagmi/chains';
 
@@ -26,7 +26,7 @@ interface ProjectRequest {
 }
 
 const DAO = () => {
-  const { address, chain } = useAccount();
+  const { address } = useAccount();
 
   // Read minimum stake amount
   const { data: minimumStake } = useReadContract({
@@ -41,7 +41,9 @@ const DAO = () => {
     abi: MINIMAL_ABI.DAO,
     functionName: 'members',
     args: [address || '0x0000000000000000000000000000000000000000'],
-    enabled: !!address,
+    query: {
+      enabled: !!address,
+    },
   }) as { data: Member };
 
   // Get project requests
