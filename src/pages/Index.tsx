@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useWeb3 } from '@/context/Web3Context';
 import { CONTRACT_ADDRESSES, MINIMAL_ABI, getContract } from '@/lib/web3/contracts';
@@ -101,7 +100,7 @@ const Index = () => {
                 id={index}
                 name={project.name}
                 description={project.description}
-                endTime={project.endTime.toNumber()}
+                endTime={typeof project.endTime === 'number' ? project.endTime : Number(project.endTime)}
                 totalDonations={project.totalDonations.toString()}
                 isListed={project.isListed}
               />
