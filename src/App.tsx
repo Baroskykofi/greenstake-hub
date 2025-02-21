@@ -4,9 +4,9 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { WagmiConfig } from 'wagmi';
+import { WagmiProvider } from 'wagmi';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
-import { wagmiConfig, chains } from '@/lib/web3/wagmi';
+import { config, chains } from '@/lib/web3/wagmi';
 import Navbar from "./components/layout/Navbar";
 import Landing from "./pages/Landing";
 import Projects from "./pages/Projects";
@@ -18,9 +18,9 @@ import '@rainbow-me/rainbowkit/styles.css';
 const queryClient = new QueryClient();
 
 const App = () => (
-  <WagmiConfig config={wagmiConfig}>
-    <RainbowKitProvider chains={chains}>
-      <QueryClientProvider client={queryClient}>
+  <WagmiProvider config={config}>
+    <QueryClientProvider client={queryClient}>
+      <RainbowKitProvider>
         <TooltipProvider>
           <Toaster />
           <Sonner />
@@ -37,9 +37,9 @@ const App = () => (
             </div>
           </BrowserRouter>
         </TooltipProvider>
-      </QueryClientProvider>
-    </RainbowKitProvider>
-  </WagmiConfig>
+      </RainbowKitProvider>
+    </QueryClientProvider>
+  </WagmiProvider>
 );
 
 export default App;
