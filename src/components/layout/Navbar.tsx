@@ -1,20 +1,11 @@
 
-import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useWeb3 } from '@/context/Web3Context';
-import { Button } from '@/components/ui/button';
-import { Home, PlusCircle, Users, Wallet } from 'lucide-react';
+import { Home, PlusCircle, Users } from 'lucide-react';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 const Navbar = () => {
-  const { account, connectWallet } = useWeb3();
   const location = useLocation();
-
   const isActive = (path: string) => location.pathname === path;
-
-  const truncateAddress = (address: string) => {
-    if (!address) return '';
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b">
@@ -58,21 +49,8 @@ const Navbar = () => {
             </Link>
           </div>
 
-          <div className="flex items-center space-x-4">
-            {account ? (
-              <div className="flex items-center px-4 py-2 rounded-lg bg-green-50 text-green-600">
-                <Wallet size={20} className="mr-2" />
-                <span className="font-medium">{truncateAddress(account)}</span>
-              </div>
-            ) : (
-              <Button
-                onClick={connectWallet}
-                className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white"
-              >
-                <Wallet size={20} />
-                <span>Connect Wallet</span>
-              </Button>
-            )}
+          <div className="flex items-center">
+            <ConnectButton />
           </div>
         </div>
       </div>
