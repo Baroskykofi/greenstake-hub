@@ -1,14 +1,20 @@
 
-import React, { useState } from 'react';
-import { useAccount, useReadContract, useWriteContract, useWatchContractEvent } from 'wagmi';
+import React from 'react';
+import { useAccount, useReadContract, useWriteContract } from 'wagmi';
 import { CONTRACT_ADDRESSES, MINIMAL_ABI } from '@/lib/web3/contracts';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { formatEther } from 'viem';
+import { formatEther, parseEther } from 'viem';
 import { toast } from 'sonner';
+import { sepolia } from 'wagmi/chains';
 
-interface ProjectVotes {
+interface Member {
+  stakedAmount: bigint;
+  isMember: boolean;
+}
+
+interface ProjectRequest {
   projectId: bigint;
   projectOwner: string;
   name: string;
@@ -20,67 +26,48 @@ interface ProjectVotes {
 }
 
 const DAO = () => {
-  const { address: account } = useAccount();
-  const [loading, setLoading] = useState(false);
+  const { address, chain } = useAccount();
 
   // Read minimum stake amount
   const { data: minimumStake } = useReadContract({
     address: CONTRACT_ADDRESSES.DAO as `0x${string}`,
     abi: MINIMAL_ABI.DAO,
     functionName: 'minStakeAmount',
-  });
+  }) as { data: bigint };
 
   // Check if user is a member
   const { data: memberData } = useReadContract({
     address: CONTRACT_ADDRESSES.DAO as `0x${string}`,
     abi: MINIMAL_ABI.DAO,
     functionName: 'members',
-    args: [account || '0x0000000000000000000000000000000000000000'],
-    query: {
-      enabled: !!account,
-    },
-  });
+    args: [address || '0x0000000000000000000000000000000000000000'],
+    enabled: !!address,
+  }) as { data: Member };
 
   // Get project requests
   const { data: projectRequests } = useReadContract({
     address: CONTRACT_ADDRESSES.DAO as `0x${string}`,
     abi: MINIMAL_ABI.DAO,
     functionName: 'projectRequests',
-    args: [0n], // Start with first project
-  });
+    args: [0n],
+  }) as { data: ProjectRequest };
 
   // Contract write operations
-  const { writeContract: joinDAO } = useWriteContract();
-  const { writeContract: voteOnProject } = useWriteContract();
-
-  // Watch for events
-  useWatchContractEvent({
-    address: CONTRACT_ADDRESSES.DAO as `0x${string}`,
-    abi: MINIMAL_ABI.DAO,
-    eventName: 'NewMember',
-    onLogs(logs) {
-      toast.success('Successfully joined the DAO!');
-    },
-  });
-
-  useWatchContractEvent({
-    address: CONTRACT_ADDRESSES.DAO as `0x${string}`,
-    abi: MINIMAL_ABI.DAO,
-    eventName: 'Voted',
-    onLogs(logs) {
-      toast.success('Vote recorded successfully!');
-    },
-  });
+  const { writeContract: joinDAO, isPending: isJoining } = useWriteContract();
+  const { writeContract: voteOnProject, isPending: isVoting } = useWriteContract();
 
   const handleJoinDAO = async () => {
-    if (!minimumStake) return;
+    if (!minimumStake || !address) return;
     try {
       joinDAO({
         address: CONTRACT_ADDRESSES.DAO as `0x${string}`,
         abi: MINIMAL_ABI.DAO,
         functionName: 'joinDAO',
         value: minimumStake,
+        chain: sepolia,
+        account: address,
       });
+      toast.success('Transaction submitted');
     } catch (error) {
       console.error('Error joining DAO:', error);
       toast.error('Failed to join DAO');
@@ -88,20 +75,24 @@ const DAO = () => {
   };
 
   const handleVote = async (projectId: bigint, support: boolean) => {
+    if (!address) return;
     try {
       voteOnProject({
         address: CONTRACT_ADDRESSES.DAO as `0x${string}`,
         abi: MINIMAL_ABI.DAO,
         functionName: 'voteOnProject',
         args: [projectId, support],
+        chain: sepolia,
+        account: address,
       });
+      toast.success('Vote submitted');
     } catch (error) {
       console.error('Error voting:', error);
       toast.error('Failed to record vote');
     }
   };
 
-  if (!account) {
+  if (!address) {
     return (
       <div className="min-h-screen pt-24 px-4">
         <div className="max-w-4xl mx-auto text-center">
@@ -140,10 +131,10 @@ const DAO = () => {
               {!isMember && (
                 <Button
                   onClick={handleJoinDAO}
-                  disabled={loading}
+                  disabled={isJoining}
                   className="w-full bg-primary hover:bg-primary/90"
                 >
-                  {loading ? 'Joining...' : 'Join DAO'}
+                  {isJoining ? 'Joining...' : 'Join DAO'}
                 </Button>
               )}
             </div>
@@ -161,22 +152,22 @@ const DAO = () => {
                   <div className="flex justify-between items-center">
                     <h3 className="font-medium">{projectRequests.name}</h3>
                     <div className="flex space-x-4">
-                      <span className="text-green-600">Yes: {projectRequests.yesVotes?.toString()}</span>
-                      <span className="text-red-600">No: {projectRequests.noVotes?.toString()}</span>
+                      <span className="text-green-600">Yes: {projectRequests.yesVotes.toString()}</span>
+                      <span className="text-red-600">No: {projectRequests.noVotes.toString()}</span>
                     </div>
                   </div>
                   <p className="text-gray-600">{projectRequests.description}</p>
                   <div className="flex space-x-4">
                     <Button
                       onClick={() => handleVote(0n, true)}
-                      disabled={loading}
+                      disabled={isVoting}
                       className="flex-1 bg-green-500 hover:bg-green-600"
                     >
                       Vote Yes
                     </Button>
                     <Button
                       onClick={() => handleVote(0n, false)}
-                      disabled={loading}
+                      disabled={isVoting}
                       className="flex-1 bg-red-500 hover:bg-red-600"
                     >
                       Vote No
