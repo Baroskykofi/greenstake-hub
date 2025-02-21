@@ -12,6 +12,7 @@ import Landing from "./pages/Landing";
 import Projects from "./pages/Projects";
 import ListProject from "./pages/ListProject";
 import DAO from "./pages/DAO";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import '@rainbow-me/rainbowkit/styles.css';
 
@@ -32,6 +33,7 @@ const App = () => (
                 <Route path="/projects" element={<Projects />} />
                 <Route path="/list-project" element={<ListProject />} />
                 <Route path="/dao" element={<DAO />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </div>

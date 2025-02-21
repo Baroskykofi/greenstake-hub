@@ -1,17 +1,20 @@
+
 import React, { useEffect, useState } from 'react';
 import { useWeb3 } from '@/context/Web3Context';
 import { CONTRACT_ADDRESSES, MINIMAL_ABI, getContract } from '@/lib/web3/contracts';
 import ProjectCard from '@/components/ProjectCard';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { useReadContract } from 'wagmi';
 
 interface Project {
+  id: bigint;
   name: string;
   description: string;
   owner: string;
-  endTime: number;
-  totalDonations: string;
+  subscriptionEndTime: bigint;
   isListed: boolean;
+  totalDonations: bigint;
 }
 
 const Projects = () => {
@@ -19,9 +22,27 @@ const Projects = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Get project counter
+  const { data: projectCounter } = useReadContract({
+    address: CONTRACT_ADDRESSES.PROJECT_LISTING as `0x${string}`,
+    abi: MINIMAL_ABI.ProjectListing,
+    functionName: 'projectCounter',
+  }) as { data: bigint };
+
+  // Get projects
+  const { data: projectsData } = useReadContract({
+    address: CONTRACT_ADDRESSES.PROJECT_LISTING as `0x${string}`,
+    abi: MINIMAL_ABI.ProjectListing,
+    functionName: 'projects',
+    args: [0n], // Start with first project
+    query: {
+      enabled: !!projectCounter,
+    },
+  }) as { data: Project };
+
   useEffect(() => {
     const fetchProjects = async () => {
-      if (!provider || !account) return;
+      if (!provider || !account || !projectCounter) return;
 
       try {
         const contract = getContract(
@@ -30,20 +51,17 @@ const Projects = () => {
           provider
         );
 
-        const projectsData = await contract.projects;
-        const projectCounter = await contract.projectCounter();
-
         const projectsArray = [];
-        for (let i = 0; i < projectCounter; i++) {
+        for (let i = 0; i < Number(projectCounter); i++) {
           const project = await contract.projects(i);
           projectsArray.push({
-            id: project.id.toNumber(),
+            id: project.id,
             name: project.name,
             description: project.description,
             owner: project.owner,
-            endTime: project.subscriptionEndTime.toNumber(),
-            totalDonations: project.totalDonations.toString(),
+            subscriptionEndTime: project.subscriptionEndTime,
             isListed: project.isListed,
+            totalDonations: project.totalDonations,
           });
         }
         setProjects(projectsArray);
@@ -56,7 +74,7 @@ const Projects = () => {
     };
 
     fetchProjects();
-  }, [provider, account]);
+  }, [provider, account, projectCounter]);
 
   if (!account) {
     return (
@@ -111,12 +129,12 @@ const Projects = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((project) => (
               <ProjectCard
-                key={project.id}
-                id={project.id}
+                key={project.id.toString()}
+                id={Number(project.id)}
                 name={project.name}
                 description={project.description}
-                endTime={project.endTime}
-                totalDonations={project.totalDonations}
+                endTime={Number(project.subscriptionEndTime)}
+                totalDonations={project.totalDonations.toString()}
                 isListed={project.isListed}
               />
             ))}
